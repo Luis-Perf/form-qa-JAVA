@@ -3,6 +3,7 @@ package tests;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.testng.Assert;
 import org.testng.annotations.*;
 
@@ -14,7 +15,11 @@ public class FormTest {
     @BeforeClass
     public void setup() {
         WebDriverManager.chromedriver().setup();
-        driver = new ChromeDriver();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        driver = new ChromeDriver(options);
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
         driver.manage().window().maximize();
     }
@@ -23,7 +28,6 @@ public class FormTest {
     public void preencherFormulario() {
         driver.get("https://demoqa.com/automation-practice-form");
 
-        // Remove anúncios que atrapalham
         ((JavascriptExecutor) driver).executeScript(
             "document.querySelectorAll('iframe, .advertisement').forEach(el => el.remove());"
         );
