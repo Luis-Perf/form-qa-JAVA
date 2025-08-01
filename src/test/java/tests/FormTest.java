@@ -4,6 +4,8 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.*;
 
@@ -19,16 +21,16 @@ public class FormTest {
         options.addArguments("--headless");
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--window-size=1920,1080");
         driver = new ChromeDriver(options);
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-        driver.manage().window().maximize();
     }
 
     @Test
     public void preencherFormulario() {
         driver.get("https://demoqa.com/automation-practice-form");
 
-        // Remove anúncios iniciais
+        //Remove anúncios iniciais
         ((JavascriptExecutor) driver).executeScript(
             "document.querySelectorAll('iframe, .advertisement, #google_ads_iframe_').forEach(el => el.remove());"
         );
@@ -54,10 +56,17 @@ public class FormTest {
         WebElement upload = driver.findElement(By.id("uploadPicture"));
         upload.sendKeys(System.getProperty("user.dir") + "/src/test/resources/teste.png");
 
+        //Clique protegido no botão "Submit"
+        ((JavascriptExecutor) driver).executeScript(
+            "document.querySelectorAll('iframe, #google_ads_iframe_').forEach(el => el.remove());"
+        );
         WebElement submitButton = driver.findElement(By.id("submit"));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", submitButton);
         ((JavascriptExecutor) driver).executeScript("arguments[0].click();", submitButton);
 
-        WebElement modal = driver.findElement(By.id("example-modal-sizes-title-lg"));
+        //Espera explícita pelo modal aparecer
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement modal = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("example-modal-sizes-title-lg")));
         Assert.assertTrue(modal.isDisplayed(), "Modal não apareceu!");
 
         //Clique protegido no botão "Close"
